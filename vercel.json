@@ -1,28 +1,12 @@
 {
   "rewrites": [
     {
-      "source": "/lms/:match*",
-      "destination": "https://web-yenova.vercel.app/:match*"
-    },
-    {
-      "source": "/lms",
-      "destination": "https://web-yenova.vercel.app"
-    },
-    {
-      "source": "/_next/:match*",
-      "destination": "https://web-yenova.vercel.app/_next/:match*"
-    },
-    {
-      "source": "/login",
-      "destination": "https://web-yenova.vercel.app/login"
-    },
-    {
-      "source": "/api/:match*",
-      "destination": "https://web-yenova.vercel.app/api/:match*"
+      "source": "/",
+      "destination": "/index.html"
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "https://web-yenova.vercel.app/$1"
     }
   ]
 }
