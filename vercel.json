@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/lms/:match*",
+      "destination": "https://web-yenova.vercel.app/:match*"
+    },
+    {
+      "source": "/lms",
+      "destination": "https://web-yenova.vercel.app"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
