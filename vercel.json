@@ -13,6 +13,14 @@
       "destination": "https://web-yenova.vercel.app/_next/:match*"
     },
     {
+      "source": "/login",
+      "destination": "https://web-yenova.vercel.app/login"
+    },
+    {
+      "source": "/api/:match*",
+      "destination": "https://web-yenova.vercel.app/api/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
