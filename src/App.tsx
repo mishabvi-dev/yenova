@@ -5,7 +5,7 @@ import AboutSection from './components/AboutSection';
 import EventLog from './components/EventLog';
 import AdminPanel from './components/AdminPanel';
 import PaymentModal from './components/PaymentModal';
-import GallerySection from './components/GallerySection';
+import ProjectsSection from './components/ProjectsSection';
 import Footer from './components/Footer';
 import { initialEvents } from './data/mockData';
 import type { ClubEvent, Registration } from './data/mockData';
@@ -72,7 +72,7 @@ function App() {
       <main>
         <HeroSection />
         <AboutSection />
-        <GallerySection />
+        <ProjectsSection />
         <EventLog events={events} onRegister={handleRegister} />
         <AdminPanel 
           events={events} 
