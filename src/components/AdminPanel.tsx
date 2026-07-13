@@ -150,7 +150,6 @@ const AdminPanel = ({ events, registrations }: AdminPanelProps) => {
         {!isAdmin ? (
           <div className="admin-gate glass-panel hover-lift">
             <h3>Restricted access</h3>
-            <p className="hint">demo password: yenova2026</p>
             <div className="field">
               <label>Admin password</label>
               <input 
