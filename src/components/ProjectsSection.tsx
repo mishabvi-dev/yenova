@@ -1,5 +1,5 @@
 import './ProjectsSection.css';
-import { ExternalLink, Github } from 'lucide-react';
+import { ExternalLink, Code } from 'lucide-react';
 
 const projects = [
   {
@@ -44,7 +44,7 @@ const ProjectsSection = () => {
               <div className="proj-top">
                 <h3>{proj.title}</h3>
                 <div className="proj-links">
-                  <a href={proj.github} className="icon-link"><Github size={18} /></a>
+                  <a href={proj.github} className="icon-link"><Code size={18} /></a>
                   <a href={proj.live} className="icon-link"><ExternalLink size={18} /></a>
                 </div>
               </div>

@@ -28,10 +28,10 @@ export const initialEvents: ClubEvent[] = [
 ];
 
 export const teamMembers = [
-  { name: "Aditi Rao", role: "President" },
-  { name: "Rohan Nair", role: "Vice President" },
-  { name: "Sneha Kamath", role: "Tech Lead" },
-  { name: "Farhan Sheikh", role: "Events Lead" },
+  { name: "Sneha Shajith", role: "Core Team" },
+  { name: "Afnan", role: "Core Team" },
+  { name: "Mishab V I", role: "Core Team" },
+  { name: "Neha Shajith", role: "Core Team" },
 ];
 
 export const teamColors = ["#5EEAD4", "#F5A524", "#7FB8F0", "#F0685E"];
