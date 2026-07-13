@@ -1,15 +1,17 @@
 import { useState, useRef } from 'react';
 import type { ClubEvent, Registration } from '../data/mockData';
-import { LayoutDashboard, Users, CalendarDays, LogOut, Plus, Share2, Trash2 } from 'lucide-react';
+import { LayoutDashboard, Users, CalendarDays, LogOut, Plus, Share2, Trash2, Edit2, Loader2 } from 'lucide-react';
+import { db, storage } from '../lib/firebase';
+import { doc, setDoc, deleteDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './AdminPanel.css';
 
 interface AdminPanelProps {
   events: ClubEvent[];
-  setEvents: React.Dispatch<React.SetStateAction<ClubEvent[]>>;
   registrations: Registration[];
 }
 
-const AdminPanel = ({ events, setEvents, registrations }: AdminPanelProps) => {
+const AdminPanel = ({ events, registrations }: AdminPanelProps) => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -17,12 +19,17 @@ const AdminPanel = ({ events, setEvents, registrations }: AdminPanelProps) => {
   const [activeTab, setActiveTab] = useState('dash');
   
   // New event form state
+  const [editingId, setEditingId] = useState<number | null>(null);
   const [neTitle, setNeTitle] = useState('');
   const [neDate, setNeDate] = useState('');
   const [neFee, setNeFee] = useState('');
   const [neSeats, setNeSeats] = useState('');
   const [neDesc, setNeDesc] = useState('');
   const [nePoster, setNePoster] = useState('');
+  
+  const [isUploading, setIsUploading] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const tryLogin = () => {
     if (password === 'yenova2026') {
@@ -39,35 +46,90 @@ const AdminPanel = ({ events, setEvents, registrations }: AdminPanelProps) => {
     setActiveTab('dash');
   };
 
-  const addEvent = () => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setIsUploading(true);
+    setAddError('');
+    try {
+      const storageRef = ref(storage, `posters/${Date.now()}_${file.name}`);
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+      setNePoster(url);
+    } catch (err: any) {
+      console.error(err);
+      setAddError('Failed to upload image. ' + err.message);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const saveEvent = async () => {
     if (!neTitle || !neDate) {
-      setAddError('Title and Date are required to add an event.');
+      setAddError('Title and Date are required.');
       return;
     }
     
+    setIsSaving(true);
     setAddError('');
+    
+    const eventId = editingId || Date.now();
+    const eventHash = editingId ? events.find(e => e.id === editingId)?.hash || Math.random().toString(16).slice(2, 9) : Math.random().toString(16).slice(2, 9);
+    
     const newEvent: ClubEvent = {
-      id: Date.now(),
-      hash: Math.random().toString(16).slice(2, 9),
+      id: eventId,
+      hash: eventHash,
       title: neTitle,
       date: neDate,
       fee: parseInt(neFee) || 0,
       seatsTotal: parseInt(neSeats) || 30,
-      seatsTaken: 0,
+      seatsTaken: editingId ? (events.find(e => e.id === editingId)?.seatsTaken || 0) : 0,
       desc: neDesc || 'Details coming soon.',
       posterUrl: nePoster || undefined
     };
 
-    setEvents([...events, newEvent]);
-    setNeTitle(''); setNeDate(''); setNeFee(''); setNeSeats(''); setNeDesc(''); setNePoster('');
+    try {
+      await setDoc(doc(db, 'events', eventId.toString()), newEvent);
+      // Reset form
+      setEditingId(null);
+      setNeTitle(''); setNeDate(''); setNeFee(''); setNeSeats(''); setNeDesc(''); setNePoster('');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    } catch (err: any) {
+      setAddError('Failed to save event: ' + err.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const removeEvent = (id: number) => {
-    setEvents(events.filter(e => e.id !== id));
+  const editEvent = (e: ClubEvent) => {
+    setEditingId(e.id);
+    setNeTitle(e.title);
+    setNeDate(e.date);
+    setNeFee(e.fee.toString());
+    setNeSeats(e.seatsTotal.toString());
+    setNeDesc(e.desc);
+    setNePoster(e.posterUrl || '');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const removeEvent = async (id: number) => {
+    if (confirm('Are you sure you want to delete this event?')) {
+      try {
+        await deleteDoc(doc(db, 'events', id.toString()));
+      } catch (err) {
+        console.error("Failed to delete", err);
+      }
+    }
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setNeTitle(''); setNeDate(''); setNeFee(''); setNeSeats(''); setNeDesc(''); setNePoster('');
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const generatePosterLink = (event: ClubEvent) => {
-    // Mock poster generation URL
     const baseUrl = window.location.origin;
     const text = `Join us for ${event.title} on ${event.date}!`;
     alert(`Share this link on your socials:\n\n${baseUrl}?event=${event.hash}\n\n${text}`);
@@ -193,7 +255,7 @@ const AdminPanel = ({ events, setEvents, registrations }: AdminPanelProps) => {
 
               {activeTab === 'evts' && (
                 <div className="admin-view fade-in">
-                  <h3>Add a new event</h3>
+                  <h3>{editingId ? 'Edit Event' : 'Add a new event'}</h3>
                   <div className="form-grid">
                     <div className="field"><label>Title</label><input value={neTitle} onChange={e=>setNeTitle(e.target.value)} placeholder="e.g. AI Agents Workshop"/></div>
                     <div className="field"><label>Date</label><input value={neDate} onChange={e=>setNeDate(e.target.value)} placeholder="e.g. Sep 12, 2026"/></div>
@@ -201,13 +263,34 @@ const AdminPanel = ({ events, setEvents, registrations }: AdminPanelProps) => {
                     <div className="field"><label>Total seats</label><input type="number" value={neSeats} onChange={e=>setNeSeats(e.target.value)} placeholder="60"/></div>
                   </div>
                   <div className="field"><label>Description</label><textarea rows={2} value={neDesc} onChange={e=>setNeDesc(e.target.value)} placeholder="One line about the session"></textarea></div>
-                  <div className="field"><label>Poster URL (Optional)</label><input value={nePoster} onChange={e=>setNePoster(e.target.value)} placeholder="https://example.com/poster.jpg"/></div>
+                  
+                  <div className="field">
+                    <label>Upload Poster Image</label>
+                    <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileUpload} 
+                        ref={fileInputRef}
+                        style={{flex: 1, padding: '8px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.1)'}}
+                      />
+                      {isUploading && <Loader2 className="spinning" size={20} />}
+                    </div>
+                  </div>
+
+                  <div className="field"><label>Poster Image URL (or upload above)</label><input value={nePoster} onChange={e=>setNePoster(e.target.value)} placeholder="https://example.com/poster.jpg"/></div>
                   
                   {addError && <p className="error-text" style={{display: 'block'}}>{addError}</p>}
                   
-                  <button className="btn btn-teal mt-4" onClick={addEvent}>
-                    <Plus size={16} /> Add to event log
-                  </button>
+                  <div style={{display: 'flex', gap: '10px', marginTop: '16px'}}>
+                    <button className="btn btn-teal" onClick={saveEvent} disabled={isSaving || isUploading}>
+                      {isSaving ? <Loader2 className="spinning" size={16} style={{marginRight: '8px'}} /> : (editingId ? <Edit2 size={16} style={{marginRight: '8px'}} /> : <Plus size={16} style={{marginRight: '8px'}} />)} 
+                      {editingId ? 'Save Changes' : 'Add to event log'}
+                    </button>
+                    {editingId && (
+                      <button className="btn outline-btn" onClick={cancelEdit}>Cancel</button>
+                    )}
+                  </div>
                   
                   <h3 style={{marginTop: '40px'}}>Current events</h3>
                   <div className="table-responsive">
@@ -221,6 +304,9 @@ const AdminPanel = ({ events, setEvents, registrations }: AdminPanelProps) => {
                             <td>{e.seatsTaken}/{e.seatsTotal}</td>
                             <td>
                               <div style={{display: 'flex', gap: '8px'}}>
+                                <button className="mini-btn share-btn" onClick={() => editEvent(e)} title="Edit Event">
+                                  <Edit2 size={14} /> Edit
+                                </button>
                                 <button className="mini-btn share-btn" onClick={() => generatePosterLink(e)} title="Share Poster">
                                   <Share2 size={14} /> Share
                                 </button>

@@ -9,42 +9,58 @@ import GallerySection from './components/GallerySection';
 import Footer from './components/Footer';
 import { initialEvents } from './data/mockData';
 import type { ClubEvent, Registration } from './data/mockData';
+import { db } from './lib/firebase';
+import { collection, onSnapshot, doc, setDoc } from 'firebase/firestore';
 import './index.css';
 
 function App() {
-  // Global State using localStorage for persistence
-  const [events, setEvents] = useState<ClubEvent[]>(() => {
-    const saved = localStorage.getItem('yenova_events');
-    return saved ? JSON.parse(saved) : initialEvents;
-  });
-  
-  const [registrations, setRegistrations] = useState<Registration[]>(() => {
-    const saved = localStorage.getItem('yenova_regs');
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  const [events, setEvents] = useState<ClubEvent[]>([]);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [selectedEventId, setSelectedEventId] = useState<number | null>(null);
 
   useEffect(() => {
-    localStorage.setItem('yenova_events', JSON.stringify(events));
-  }, [events]);
+    // Listen to events
+    const unsubEvents = onSnapshot(collection(db, 'events'), (snapshot) => {
+      if (snapshot.empty) {
+        // Seed initial events if database is totally empty
+        initialEvents.forEach((ev) => {
+          setDoc(doc(db, 'events', ev.id.toString()), ev);
+        });
+      } else {
+        const evts = snapshot.docs.map(d => d.data() as ClubEvent);
+        setEvents(evts.sort((a, b) => b.id - a.id));
+      }
+    });
 
-  useEffect(() => {
-    localStorage.setItem('yenova_regs', JSON.stringify(registrations));
-  }, [registrations]);
+    // Listen to registrations
+    const unsubRegs = onSnapshot(collection(db, 'registrations'), (snapshot) => {
+      const regs = snapshot.docs.map(d => d.data() as Registration);
+      setRegistrations(regs);
+    });
+
+    return () => {
+      unsubEvents();
+      unsubRegs();
+    };
+  }, []);
 
   const handleRegister = (eventId: number) => {
     setSelectedEventId(eventId);
   };
 
-  const handlePaymentSuccess = (reg: Registration) => {
-    setRegistrations(prev => [...prev, reg]);
-    setEvents(prev => prev.map(e => {
-      if (e.id === selectedEventId) {
-        return { ...e, seatsTaken: Math.min(e.seatsTotal, e.seatsTaken + 1) };
+  const handlePaymentSuccess = async (reg: Registration) => {
+    try {
+      await setDoc(doc(db, 'registrations', reg.id), reg);
+      const event = events.find(e => e.id === selectedEventId);
+      if (event) {
+        await setDoc(doc(db, 'events', event.id.toString()), {
+          ...event,
+          seatsTaken: Math.min(event.seatsTotal, event.seatsTaken + 1)
+        });
       }
-      return e;
-    }));
+    } catch (e) {
+      console.error("Error saving registration to Firestore:", e);
+    }
   };
 
   const selectedEvent = events.find(e => e.id === selectedEventId) || null;
@@ -60,7 +76,6 @@ function App() {
         <EventLog events={events} onRegister={handleRegister} />
         <AdminPanel 
           events={events} 
-          setEvents={setEvents} 
           registrations={registrations} 
         />
       </main>

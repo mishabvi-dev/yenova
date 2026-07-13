@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { ClubEvent } from '../data/mockData';
-import { Filter, Calendar, MapPin } from 'lucide-react';
+import { Filter, Calendar } from 'lucide-react';
 import './EventLog.css';
 
 interface EventLogProps {

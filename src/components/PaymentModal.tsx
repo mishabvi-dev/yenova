@@ -127,7 +127,7 @@ const PaymentModal = ({ event, onClose, onSuccess }: PaymentModalProps) => {
               </div>
             )}
             
-            <button className="btn btn-teal btn-block mt-4" onClick={processPayment}>
+            <button className="btn btn-teal btn-block mt-4" onClick={() => processPayment()}>
               Pay & confirm
             </button>
             <p className="mock-notice">🔒 simulated gateway — no real charge is made</p>
