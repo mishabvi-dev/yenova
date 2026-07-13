@@ -9,6 +9,10 @@
       "destination": "https://web-yenova.vercel.app"
     },
     {
+      "source": "/_next/:match*",
+      "destination": "https://web-yenova.vercel.app/_next/:match*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
