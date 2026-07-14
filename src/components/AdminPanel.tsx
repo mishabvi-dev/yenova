@@ -277,7 +277,23 @@ const AdminPanel = ({ events, registrations }: AdminPanelProps) => {
                     </div>
                   </div>
 
-                  <div className="field"><label>Poster Image URL (or upload above)</label><input value={nePoster} onChange={e=>setNePoster(e.target.value)} placeholder="https://example.com/poster.jpg"/></div>
+                  <div className="field">
+                    <label>Poster Image URL (or upload above)</label>
+                    <input 
+                      value={nePoster} 
+                      onChange={e => {
+                        let val = e.target.value;
+                        if (val.includes('drive.google.com/file/d/')) {
+                          const match = val.match(/\\/d\\/([a-zA-Z0-9_-]+)/);
+                          if (match && match[1]) {
+                            val = `https://drive.google.com/uc?export=view&id=${match[1]}`;
+                          }
+                        }
+                        setNePoster(val);
+                      }} 
+                      placeholder="https://example.com/poster.jpg"
+                    />
+                  </div>
                   
                   {addError && <p className="error-text" style={{display: 'block'}}>{addError}</p>}
                   
