@@ -210,17 +210,18 @@ const AdminPanel = ({ events, registrations }: AdminPanelProps) => {
                   <h3>Recent registrations</h3>
                   <div className="table-responsive">
                     <table>
-                      <thead><tr><th>Name</th><th>Event</th><th>Amount</th><th>Time</th></tr></thead>
+                      <thead><tr><th>Name</th><th>Reg No.</th><th>Event</th><th>Amount</th><th>Time</th></tr></thead>
                       <tbody>
                         {recentRegs.length > 0 ? recentRegs.map((r, i) => (
                           <tr key={i}>
                             <td className="strong">{r.name}</td>
+                            <td>{r.regNo}</td>
                             <td>{r.event}</td>
                             <td>{r.amount === 0 ? 'Free' : `₹${r.amount}`}</td>
                             <td>{r.time}</td>
                           </tr>
                         )) : (
-                          <tr><td colSpan={4} className="empty-row">No registrations yet.</td></tr>
+                          <tr><td colSpan={5} className="empty-row">No registrations yet.</td></tr>
                         )}
                       </tbody>
                     </table>
@@ -233,18 +234,22 @@ const AdminPanel = ({ events, registrations }: AdminPanelProps) => {
                   <h3>All registrations</h3>
                   <div className="table-responsive">
                     <table>
-                      <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Event</th><th>Amount</th></tr></thead>
+                      <thead><tr><th>ID</th><th>Name</th><th>Reg No.</th><th>Course</th><th>Campus ID</th><th>LH</th><th>Event</th><th>Amount</th><th>Txn ID</th></tr></thead>
                       <tbody>
                         {registrations.length > 0 ? [...registrations].reverse().map((r, i) => (
                           <tr key={i}>
                             <td>{r.id}</td>
                             <td className="strong">{r.name}</td>
-                            <td>{r.email}</td>
+                            <td>{r.regNo}</td>
+                            <td>{r.course}</td>
+                            <td>{r.campusId}</td>
+                            <td>{r.lh}</td>
                             <td>{r.event}</td>
                             <td>{r.amount === 0 ? 'Free' : `₹${r.amount}`}</td>
+                            <td style={{fontFamily: 'monospace', fontSize: '12px'}}>{r.transactionId || '-'}</td>
                           </tr>
                         )) : (
-                          <tr><td colSpan={5} className="empty-row">Nothing here yet.</td></tr>
+                          <tr><td colSpan={9} className="empty-row">Nothing here yet.</td></tr>
                         )}
                       </tbody>
                     </table>

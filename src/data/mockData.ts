@@ -13,11 +13,15 @@ export interface ClubEvent {
 export interface Registration {
   id: string;
   name: string;
-  email: string;
+  course: string;
+  regNo: string;
+  campusId: string;
+  lh: string;
   event: string;
   amount: number;
   method: string;
   time: string;
+  transactionId?: string;
 }
 
 export const initialEvents: ClubEvent[] = [

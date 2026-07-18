@@ -11,13 +11,13 @@ interface PaymentModalProps {
 
 const PaymentModal = ({ event, onClose, onSuccess }: PaymentModalProps) => {
   const [step, setStep] = useState(1);
-  const [method, setMethod] = useState('card');
-  const [formData, setFormData] = useState({ name: '', email: '', phone: '', roll: '' });
+  const [formData, setFormData] = useState({ name: '', course: '', regNo: '', campusId: '', lh: '' });
+  const [transactionId, setTransactionId] = useState('');
   const [error, setError] = useState('');
 
   const handleNext = () => {
-    if (!formData.name || !formData.email.includes('@')) {
-      setError('Please fill in your name and a valid email.');
+    if (!formData.name || !formData.course || !formData.regNo || !formData.campusId || !formData.lh) {
+      setError('Please fill in all the registration fields.');
       return;
     }
     setError('');
@@ -30,17 +30,26 @@ const PaymentModal = ({ event, onClose, onSuccess }: PaymentModalProps) => {
   };
 
   const processPayment = (overrideMethod?: string) => {
-    const finalMethod = typeof overrideMethod === 'string' ? overrideMethod : method;
+    if (overrideMethod !== 'FREE' && !transactionId) {
+       setError('Please enter the Transaction ID after scanning the QR code.');
+       return;
+    }
+    setError('');
+    const finalMethod = typeof overrideMethod === 'string' ? overrideMethod : 'UPI';
     setStep(3);
     setTimeout(() => {
       const newReg: Registration = {
         id: 'YEN-' + Math.floor(1000 + Math.random() * 9000),
         name: formData.name,
-        email: formData.email,
+        course: formData.course,
+        regNo: formData.regNo,
+        campusId: formData.campusId,
+        lh: formData.lh,
         event: event.title,
         amount: event.fee,
         method: finalMethod === 'FREE' ? 'N/A' : finalMethod.toUpperCase(),
-        time: new Date().toLocaleString()
+        time: new Date().toLocaleString(),
+        transactionId: transactionId || undefined
       };
       onSuccess(newReg);
       setStep(4);
@@ -75,21 +84,41 @@ const PaymentModal = ({ event, onClose, onSuccess }: PaymentModalProps) => {
                 placeholder="Your name" 
               />
             </div>
-            <div className="field">
-              <label>Email</label>
-              <input 
-                value={formData.email} 
-                onChange={e => setFormData({...formData, email: e.target.value})} 
-                placeholder="you@example.com" 
-              />
+            <div className="form-grid">
+              <div className="field">
+                <label>Course</label>
+                <input 
+                  value={formData.course} 
+                  onChange={e => setFormData({...formData, course: e.target.value})} 
+                  placeholder="e.g. BCA, BTech" 
+                />
+              </div>
+              <div className="field">
+                <label>Register No.</label>
+                <input 
+                  value={formData.regNo} 
+                  onChange={e => setFormData({...formData, regNo: e.target.value})} 
+                  placeholder="e.g. 21BCA102" 
+                />
+              </div>
             </div>
-            <div className="field">
-              <label>Phone</label>
-              <input placeholder="10-digit number" />
-            </div>
-            <div className="field">
-              <label>College ID / roll no.</label>
-              <input placeholder="Optional" />
+            <div className="form-grid">
+              <div className="field">
+                <label>Campus ID</label>
+                <input 
+                  value={formData.campusId} 
+                  onChange={e => setFormData({...formData, campusId: e.target.value})} 
+                  placeholder="e.g. YEN123" 
+                />
+              </div>
+              <div className="field">
+                <label>LH (Lecture Hall)</label>
+                <input 
+                  value={formData.lh} 
+                  onChange={e => setFormData({...formData, lh: e.target.value})} 
+                  placeholder="e.g. LH 4" 
+                />
+              </div>
             </div>
             
             {error && <p className="error-text" style={{display: 'block'}}>{error}</p>}
@@ -101,43 +130,33 @@ const PaymentModal = ({ event, onClose, onSuccess }: PaymentModalProps) => {
         )}
 
         {step === 2 && (
-          <div className="step-content fade-in">
-            <div className="radio-row">
-              <div 
-                className={`radio-opt ${method === 'card' ? 'sel' : ''}`} 
-                onClick={() => setMethod('card')}
-              >Card</div>
-              <div 
-                className={`radio-opt ${method === 'upi' ? 'sel' : ''}`} 
-                onClick={() => setMethod('upi')}
-              >UPI</div>
+          <div className="step-content fade-in center-text">
+            <h4>Scan to Pay ₹{event.fee}</h4>
+            <p style={{fontSize: '14px', color: 'var(--text-muted)', marginBottom: '16px'}}>Use GPay, PhonePe, or Paytm</p>
+            <div className="qr-box" style={{background: 'white', padding: '16px', borderRadius: '12px', display: 'inline-block', marginBottom: '20px'}}>
+              <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay?pa=yenova@ybl&pn=Yenova%20Club&cu=INR" alt="UPI QR Code" style={{width: '150px', height: '150px', display: 'block'}} />
+            </div>
+            <div className="field" style={{textAlign: 'left'}}>
+              <label>Transaction ID (after paying)</label>
+              <input 
+                value={transactionId} 
+                onChange={e => setTransactionId(e.target.value)} 
+                placeholder="e.g. T23081912345" 
+              />
             </div>
             
-            {method === 'card' ? (
-              <div className="fade-in">
-                <div className="field"><label>Card number</label><input placeholder="4242 4242 4242 4242" maxLength={19} /></div>
-                <div className="form-grid">
-                  <div className="field"><label>Expiry</label><input placeholder="MM/YY" /></div>
-                  <div className="field"><label>CVV</label><input placeholder="123" maxLength={3} /></div>
-                </div>
-              </div>
-            ) : (
-              <div className="fade-in">
-                <div className="field"><label>UPI ID</label><input placeholder="yourname@upi" /></div>
-              </div>
-            )}
+            {error && <p className="error-text" style={{display: 'block', textAlign: 'left'}}>{error}</p>}
             
             <button className="btn btn-teal btn-block mt-4" onClick={() => processPayment()}>
-              Pay & confirm
+              Verify & Confirm
             </button>
-            <p className="mock-notice">🔒 simulated gateway — no real charge is made</p>
           </div>
         )}
 
         {step === 3 && (
           <div className="step-content center-text fade-in">
             <Loader2 size={36} className="spinner" />
-            <p className="processing-text">Processing payment…</p>
+            <p className="processing-text">Verifying transaction…</p>
           </div>
         )}
 
@@ -145,13 +164,15 @@ const PaymentModal = ({ event, onClose, onSuccess }: PaymentModalProps) => {
           <div className="step-content fade-in">
             <div className="center-text">
               <div className="success-icon"><Check size={28} /></div>
-              <h3>You're in!</h3>
-              <p style={{color: 'var(--text-muted)', fontSize: '14px', marginTop: '8px'}}>A confirmation has been "sent" to your email.</p>
+              <h3>You're registered!</h3>
+              <p style={{color: 'var(--text-muted)', fontSize: '14px', marginTop: '8px'}}>Your seat has been confirmed.</p>
             </div>
             <div className="receipt">
+              <div><span>Name</span><b>{formData.name}</b></div>
+              <div><span>Reg No.</span><b>{formData.regNo}</b></div>
               <div><span>Event</span><b>{event.title}</b></div>
               <div><span>Amount</span><b>{event.fee === 0 ? 'Free' : `₹${event.fee}`}</b></div>
-              {event.fee > 0 && <div><span>Method</span><b>{method.toUpperCase()}</b></div>}
+              {event.fee > 0 && <div><span>Method</span><b>UPI</b></div>}
             </div>
             <button className="btn btn-ghost btn-block" onClick={onClose}>Done</button>
           </div>
