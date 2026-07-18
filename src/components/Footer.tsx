@@ -19,7 +19,7 @@ const Footer = () => {
             <a href="#about">About</a>
             <a href="#events">Events</a>
             <a href="#projects">Projects</a>
-            <a href="mailto:yenova@yiascm.edu"><Mail size={16} className="inline-icon" /> yenova@yiascm.edu</a>
+            <a href="mailto:yenova@yenepoya.edu.in"><Mail size={16} className="inline-icon" /> yenova@yenepoya.edu.in</a>
             <a href="https://github.com/mishabvi-dev/yenova" target="_blank" rel="noreferrer"><Code size={16} className="inline-icon" /> GitHub</a>
             <a href="https://www.instagram.com/yenova.it" target="_blank" rel="noreferrer"><Camera size={16} className="inline-icon" /> Instagram</a>
             <a href="https://www.linkedin.com/company/yenova" target="_blank" rel="noreferrer"><Globe size={16} className="inline-icon" /> LinkedIn</a>

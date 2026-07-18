@@ -8,7 +8,7 @@ const AboutSection = () => {
       <div className="wrap">
         <div className="section-head">
           <div className="eyebrow">// about</div>
-          <h2>Six years of shipping, breaking, and learning together</h2>
+          <h2>Three years of shipping, breaking, and learning together</h2>
           <p>
             We're a student-run community of developers, designers and tinkerers at YIASCM. 
             No gatekeeping, no prerequisites — just people who want to build things and get better at it, together.

@@ -124,7 +124,7 @@ const HeroSection = () => {
         
         <div className="stat-row glass-panel">
           <div className="stat">
-            <div className="num">520+</div>
+            <div className="num">50+</div>
             <div className="label">ACTIVE MEMBERS</div>
           </div>
           <div className="stat">
@@ -136,7 +136,7 @@ const HeroSection = () => {
             <div className="label">LIVE PROJECTS</div>
           </div>
           <div className="stat">
-            <div className="num">6</div>
+            <div className="num">3</div>
             <div className="label">YEARS RUNNING</div>
           </div>
         </div>
