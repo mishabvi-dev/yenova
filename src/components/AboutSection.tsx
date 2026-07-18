@@ -10,8 +10,7 @@ const AboutSection = () => {
           <div className="eyebrow">// about</div>
           <h2>Three years of shipping, breaking, and learning together</h2>
           <p>
-            We're a student-run community of developers, designers and tinkerers at YIASCM. 
-            No gatekeeping, no prerequisites — just people who want to build things and get better at it, together.
+            Yenova is a dynamic and forward-thinking student club at Yenepoya University, dedicated to fostering innovation, collaboration, and excellence in the field of Information Technology. With a diverse and passionate membership, Yenova serves as a catalyst for creativity, knowledge sharing, and professional growth. Through a range of activities, events, and initiatives, Yenova empowers students to explore emerging technologies, expand their skill sets, and connect with industry professionals. Join us in our mission to ignite innovation and shape the future of IT at Yenepoya University and beyond.
           </p>
         </div>
 
