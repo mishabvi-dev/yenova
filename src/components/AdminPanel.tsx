@@ -298,6 +298,11 @@ const AdminPanel = ({ events, registrations }: AdminPanelProps) => {
                       }} 
                       placeholder="https://example.com/poster.jpg"
                     />
+                    {nePoster && (
+                      <div style={{marginTop: '10px', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--border)', maxWidth: '200px'}}>
+                        <img src={nePoster} alt="Poster preview" style={{width: '100%', display: 'block'}} onError={(e) => (e.currentTarget.style.display = 'none')} onLoad={(e) => (e.currentTarget.style.display = 'block')} />
+                      </div>
+                    )}
                   </div>
                   
                   {addError && <p className="error-text" style={{display: 'block'}}>{addError}</p>}
