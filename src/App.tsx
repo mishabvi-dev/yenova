@@ -10,7 +10,7 @@ import { collection, onSnapshot, doc, setDoc } from 'firebase/firestore';
 import './index.css';
 
 function App() {
-  const [events, setEvents] = useState<ClubEvent[]>([]);
+  const [events, setEvents] = useState<ClubEvent[]>(initialEvents);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
 
   useEffect(() => {
