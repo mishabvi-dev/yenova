@@ -62,7 +62,7 @@ const EventLog = ({ events, onRegister }: EventLogProps) => {
                   
                   {e.posterUrl && (
                     <div className="event-poster">
-                      <img src={e.posterUrl.includes('drive.google.com/file/d/') ? `https://drive.google.com/uc?export=view&id=${e.posterUrl.match(/\\/d\\/([a-zA-Z0-9_-]+)/)?.[1] || ''}` : e.posterUrl} alt={`${e.title} poster`} />
+                      <img src={e.posterUrl.includes('drive.google.com/file/d/') ? `https://drive.google.com/uc?export=view&id=${e.posterUrl.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1] || ''}` : e.posterUrl} alt={`${e.title} poster`} />
                     </div>
                   )}
 

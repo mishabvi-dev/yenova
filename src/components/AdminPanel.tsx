@@ -289,7 +289,7 @@ const AdminPanel = ({ events, registrations }: AdminPanelProps) => {
                       onChange={e => {
                         let val = e.target.value;
                         if (val.includes('drive.google.com/file/d/')) {
-                          const match = val.match(/\\/d\\/([a-zA-Z0-9_-]+)/);
+                          const match = val.match(/\/d\/([a-zA-Z0-9_-]+)/);
                           if (match && match[1]) {
                             val = `https://drive.google.com/uc?export=view&id=${match[1]}`;
                           }
